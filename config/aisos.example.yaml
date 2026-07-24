@@ -1,0 +1,195 @@
+# =============================================================================
+# AI SOS — Comprehensive Security Configuration Example
+# Copy this file to aisos.yaml and customise for your environment.
+# =============================================================================
+
+security:
+  # ---------------------------------------------------------------------------
+  # Global monitoring switch — set false to run in pure passthrough mode
+  # ---------------------------------------------------------------------------
+  monitoring: true
+
+  # Logging verbosity: debug | info | warning | error | critical
+  log_level: info
+
+  # ---------------------------------------------------------------------------
+  # AI-Specific Protections
+  # ---------------------------------------------------------------------------
+  ai:
+    # LLM provider used by the AI Security Brain for autonomous reasoning
+    # Options: openrouter | ollama | openai
+    provider: openrouter
+
+    # Detect prompt injection attacks embedded in user inputs
+    prompt_injection: true
+
+    # Detect jailbreak attempts (DAN, roleplay bypasses, etc.)
+    jailbreak_detection: true
+
+    # Detect attempts to extract or leak the system prompt
+    system_prompt_leak: true
+
+  # ---------------------------------------------------------------------------
+  # Classic Web / API Protections
+  # ---------------------------------------------------------------------------
+  protection:
+    # Detect and block SQL injection patterns in requests
+    sql_injection: true
+
+    # Detect cross-site scripting payloads in inputs/outputs
+    xss: true
+
+    # Enforce CSRF token validation on state-changing endpoints
+    csrf: true
+
+    # Block server-side request forgery payloads
+    ssrf: true
+
+    # Detect automated API endpoint enumeration / scanning
+    api_scanning: true
+
+    # Detect high-volume login attempts from distributed IPs
+    credential_stuffing: true
+
+    # Detect stolen or replayed session tokens
+    session_hijacking: true
+
+  # ---------------------------------------------------------------------------
+  # Rate Limiting
+  # ---------------------------------------------------------------------------
+  rate_limits:
+    # Maximum allowed requests per IP per minute (0 = unlimited)
+    requests_per_minute: 120
+
+    # Maximum failed auth attempts before temporary lockout
+    auth_attempts: 5
+
+  # ---------------------------------------------------------------------------
+  # Notifications — alerts sent when HIGH / CRITICAL events are detected
+  # ---------------------------------------------------------------------------
+  notifications:
+    email:
+      enabled: false
+      address: "security@example.com"
+
+    discord:
+      enabled: false
+      webhook: "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN"
+
+    slack:
+      enabled: false
+      webhook: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
+
+  # ---------------------------------------------------------------------------
+  # Real-time Security Dashboard
+  # ---------------------------------------------------------------------------
+  dashboard:
+    # Enable the FastAPI-based WebSocket dashboard
+    enabled: true
+
+    # Port the dashboard server listens on
+    port: 8765
+
+    # Require HTTP Basic Auth to access the dashboard UI
+    auth: false
+
+# =============================================================================
+# Policy Engine — IF / THEN rules evaluated after threat detection
+# Rules are evaluated in order; the FIRST matching rule wins.
+# =============================================================================
+policies:
+  - id: block-critical-injections
+    description: "Immediately block any critical-severity prompt injection"
+    if:
+      attack_category: prompt_injection
+      severity: critical
+    then:
+      decision: block
+      notify: true
+      generate_incident: true
+
+  - id: rate-limit-api-scanners
+    description: "Rate-limit IPs detected performing API enumeration"
+    if:
+      attack_category: api_enumeration
+      severity: medium
+    then:
+      decision: rate_limit
+      notify: false
+      generate_incident: false
+
+  - id: block-sql-injection
+    description: "Block all SQL injection attempts regardless of severity"
+    if:
+      attack_category: sql_injection
+    then:
+      decision: block
+      notify: true
+      generate_incident: true
+
+  - id: challenge-credential-stuffing
+    description: "Challenge (CAPTCHA/2FA) IPs flagged for credential stuffing"
+    if:
+      attack_category: credential_stuffing
+      severity: medium
+    then:
+      decision: challenge
+      notify: true
+      generate_incident: false
+
+  - id: invalidate-hijacked-sessions
+    description: "Immediately invalidate sessions suspected of being hijacked"
+    if:
+      attack_category: session_hijacking
+      severity: high
+    then:
+      decision: invalidate_session
+      notify: true
+      generate_incident: true
+
+  - id: monitor-low-risk-bots
+    description: "Monitor but allow low-risk bot traffic for analysis"
+    if:
+      attack_category: bot_traffic
+      severity: low
+    then:
+      decision: monitor
+      notify: false
+      generate_incident: false
+
+  - id: block-ssrf-high
+    description: "Block high-severity SSRF attempts"
+    if:
+      attack_category: ssrf
+      severity: high
+    then:
+      decision: block
+      notify: true
+      generate_incident: true
+
+  - id: escalate-data-exfiltration
+    description: "Escalate any data exfiltration attempt immediately"
+    if:
+      attack_category: data_exfiltration
+    then:
+      decision: escalate
+      notify: true
+      generate_incident: true
+
+  - id: block-mcp-abuse
+    description: "Block MCP tool abuse above medium severity"
+    if:
+      attack_category: mcp_abuse
+      severity: medium
+    then:
+      decision: block
+      notify: true
+      generate_incident: true
+
+  - id: default-allow
+    description: "Default policy — allow traffic that matches no other rule"
+    if: {}
+    then:
+      decision: allow
+      notify: false
+      generate_incident: false

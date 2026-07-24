@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI SOS - Autonomous AI Security Framework real-time monitoring dashboard">
+    <meta name="theme-color" content="#050A18">
+    <title>AI SOS — Security Operations Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">🛡️</div>
+            <div class="logo-text">
+                <span class="logo-name">AI SOS</span>
+                <span class="logo-version">v1.0 Alpha</span>
+            </div>
+        </div>
+        <div class="sidebar-nav">
+            <a href="#" class="nav-item active" id="nav-dashboard" data-section="dashboard">
+                <span class="nav-icon">⚡</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" id="nav-threats" data-section="threats">
+                <span class="nav-icon">🎯</span>
+                <span class="nav-label">Threat Feed</span>
+                <span class="nav-badge" id="threat-count">0</span>
+            </a>
+            <a href="#" class="nav-item" id="nav-agents" data-section="agents">
+                <span class="nav-icon">🤖</span>
+                <span class="nav-label">Agents</span>
+            </a>
+            <a href="#" class="nav-item" id="nav-metrics" data-section="metrics">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Metrics</span>
+            </a>
+            <a href="#" class="nav-item" id="nav-incidents" data-section="incidents">
+                <span class="nav-icon">🚨</span>
+                <span class="nav-label">Incidents</span>
+                <span class="nav-badge" id="incident-count">0</span>
+            </a>
+            <a href="#" class="nav-item" id="nav-decisions" data-section="decisions">
+                <span class="nav-icon">🧠</span>
+                <span class="nav-label">Brain Log</span>
+            </a>
+            <a href="#" class="nav-item" id="nav-policy" data-section="policy">
+                <span class="nav-icon">📋</span>
+                <span class="nav-label">Policy</span>
+            </a>
+            <a href="#" class="nav-item" id="nav-logs" data-section="logs">
+                <span class="nav-icon">📝</span>
+                <span class="nav-label">Logs</span>
+            </a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="ws-status" id="ws-status">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="status-text">Connecting...</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <div class="header-title">
+                    <h1>Security Operations Center</h1>
+                    <span class="header-subtitle">Real-time AI Security Monitoring</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-stat">
+                    <span class="stat-label">EVENTS/SEC</span>
+                    <span class="stat-value" id="events-per-sec">0.0</span>
+                </div>
+                <div class="threat-level-badge" id="threat-level-badge">
+                    <span class="threat-level-label">THREAT LEVEL</span>
+                    <span class="threat-level-value" id="threat-level-value">NOMINAL</span>
+                </div>
+                <div class="uptime-display">
+                    <span class="stat-label">UPTIME</span>
+                    <span class="stat-value monospace" id="uptime-counter">00:00:00</span>
+                </div>
+                <button class="icon-btn" id="theme-toggle" title="Toggle theme">🌙</button>
+                <button class="icon-btn" id="notifications-btn" title="Notifications">🔔</button>
+            </div>
+        </header>
+
+        <!-- Security Brain Status Bar -->
+        <div class="brain-status-bar">
+            <div class="brain-phase-container">
+                <div class="brain-phase-label">SECURITY BRAIN</div>
+                <div class="brain-phase-indicator">
+                    <div class="phase-dot"></div>
+                    <span class="brain-phase-name" id="brain-phase">OBSERVE</span>
+                </div>
+                <div class="phase-progress">
+                    <div class="phase-track">
+                        <div class="phase-fill" id="phase-fill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="brain-stats">
+                <div class="brain-stat">
+                    <span class="bstat-label">Total Events</span>
+                    <span class="bstat-value" id="bstat-events">0</span>
+                </div>
+                <div class="brain-stat">
+                    <span class="bstat-label">Threats</span>
+                    <span class="bstat-value accent-red" id="bstat-threats">0</span>
+                </div>
+                <div class="brain-stat">
+                    <span class="bstat-label">Blocks</span>
+                    <span class="bstat-value accent-amber" id="bstat-blocks">0</span>
+                </div>
+                <div class="brain-stat">
+                    <span class="bstat-label">Agents Active</span>
+                    <span class="bstat-value accent-green" id="bstat-agents">5</span>
+                </div>
+                <div class="brain-stat">
+                    <span class="bstat-label">Risk Score</span>
+                    <span class="bstat-value" id="bstat-risk">0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+
+            <!-- DASHBOARD SECTION -->
+            <section class="content-section active" id="section-dashboard">
+                <div class="dashboard-grid">
+                    <!-- Threat Feed Card -->
+                    <div class="card threat-feed-card">
+                        <div class="card-header">
+                            <h2 class="card-title">🎯 Live Threat Feed</h2>
+                            <div class="card-actions">
+                                <button class="btn-sm" id="pause-feed">⏸ Pause</button>
+                                <button class="btn-sm" id="clear-feed">🗑 Clear</button>
+                                <button class="btn-sm" id="export-events">📤 Export</button>
+                            </div>
+                        </div>
+                        <div class="threat-filters">
+                            <select id="filter-severity" class="filter-select">
+                                <option value="">All Severities</option>
+                                <option value="CRITICAL">Critical</option>
+                                <option value="HIGH">High</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="LOW">Low</option>
+                                <option value="INFO">Info</option>
+                            </select>
+                            <select id="filter-decision" class="filter-select">
+                                <option value="">All Decisions</option>
+                                <option value="BLOCK">Block</option>
+                                <option value="MONITOR">Monitor</option>
+                                <option value="ALLOW">Allow</option>
+                                <option value="RATE_LIMIT">Rate Limit</option>
+                                <option value="CHALLENGE">Challenge</option>
+                            </select>
+                            <input type="text" id="search-feed" class="filter-input" placeholder="🔍 Search IP or path...">
+                        </div>
+                        <div class="threat-feed" id="threat-feed"></div>
+                    </div>
+
+                    <!-- Agent Grid -->
+                    <div class="card agent-grid-card">
+                        <div class="card-header">
+                            <h2 class="card-title">🤖 Security Agents</h2>
+                        </div>
+                        <div class="agent-grid" id="agent-grid"></div>
+                    </div>
+
+                    <!-- Metrics Panel -->
+                    <div class="card metrics-card">
+                        <div class="card-header">
+                            <h2 class="card-title">📊 Live Metrics</h2>
+                        </div>
+                        <div class="metrics-panel" id="metrics-panel">
+                            <div class="metric-graph-container">
+                                <div class="graph-label">Requests / sec</div>
+                                <canvas id="chart-rps" class="metric-canvas"></canvas>
+                            </div>
+                            <div class="metric-graph-container">
+                                <div class="graph-label">Risk Score Trend</div>
+                                <canvas id="chart-risk" class="metric-canvas"></canvas>
+                            </div>
+                            <div class="metric-graph-container">
+                                <div class="graph-label">Decision Distribution</div>
+                                <canvas id="chart-decisions" class="metric-canvas"></canvas>
+                            </div>
+                            <div class="stats-row" id="stats-row"></div>
+                        </div>
+                    </div>
+
+                    <!-- Incident Panel -->
+                    <div class="card incident-card">
+                        <div class="card-header">
+                            <h2 class="card-title">🚨 Active Incidents</h2>
+                        </div>
+                        <div class="incident-list" id="incident-list"></div>
+                    </div>
+
+                    <!-- Decision Log -->
+                    <div class="card decision-card">
+                        <div class="card-header">
+                            <h2 class="card-title">🧠 Brain Decision Log</h2>
+                        </div>
+                        <div class="decision-log" id="decision-log"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- THREATS SECTION -->
+            <section class="content-section" id="section-threats">
+                <div class="section-header">
+                    <h2>🎯 Full Threat Feed</h2>
+                </div>
+                <div class="card full-card">
+                    <div class="threat-filters">
+                        <select id="filter-severity-full" class="filter-select">
+                            <option value="">All Severities</option>
+                            <option value="CRITICAL">Critical</option>
+                            <option value="HIGH">High</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="LOW">Low</option>
+                        </select>
+                        <input type="text" id="search-feed-full" class="filter-input" placeholder="🔍 Search IP or path...">
+                    </div>
+                    <div class="threat-feed" id="threat-feed-full"></div>
+                </div>
+            </section>
+
+            <!-- AGENTS SECTION -->
+            <section class="content-section" id="section-agents">
+                <div class="section-header">
+                    <h2>🤖 Security Agent Status</h2>
+                </div>
+                <div class="agent-grid-full" id="agent-grid-full"></div>
+            </section>
+
+            <!-- METRICS SECTION -->
+            <section class="content-section" id="section-metrics">
+                <div class="section-header">
+                    <h2>📊 System Metrics</h2>
+                </div>
+                <div class="card full-card">
+                    <div class="metrics-panel-full" id="metrics-panel-full"></div>
+                </div>
+            </section>
+
+            <!-- INCIDENTS SECTION -->
+            <section class="content-section" id="section-incidents">
+                <div class="section-header">
+                    <h2>🚨 Incident Reports</h2>
+                </div>
+                <div class="incident-list-full" id="incident-list-full"></div>
+            </section>
+
+            <!-- BRAIN LOG SECTION -->
+            <section class="content-section" id="section-decisions">
+                <div class="section-header">
+                    <h2>🧠 Security Brain Decision Log</h2>
+                </div>
+                <div class="card full-card">
+                    <div class="decision-log" id="decision-log-full"></div>
+                </div>
+            </section>
+
+            <!-- POLICY SECTION -->
+            <section class="content-section" id="section-policy">
+                <div class="section-header">
+                    <h2>📋 Active Policies</h2>
+                </div>
+                <div class="card full-card">
+                    <div class="policy-info">
+                        <p class="text-muted">Policy rules are configured in your YAML file. Use <code class="code-inline">aisos policy --list</code> to view active rules.</p>
+                        <pre class="code-block">aisos policy --list
+aisos policy --test
+aisos policy --add rules.yaml</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LOGS SECTION -->
+            <section class="content-section" id="section-logs">
+                <div class="section-header">
+                    <h2>📝 System Logs</h2>
+                </div>
+                <div class="card full-card">
+                    <div class="log-viewer" id="log-viewer">
+                        <div class="log-line info">[INFO] AI SOS Security Framework initialized</div>
+                        <div class="log-line info">[INFO] Security Brain starting core loop</div>
+                        <div class="log-line info">[INFO] 5 agents loaded and ready</div>
+                        <div class="log-line info">[INFO] Dashboard server started on port 8080</div>
+                        <div class="log-line info">[INFO] WebSocket endpoint active at ws://0.0.0.0:8080/ws</div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Critical Alert Toast -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script type="module" src="/static/js/ws.js"></script>
+    <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
