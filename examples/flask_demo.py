@@ -4,6 +4,7 @@ examples/flask_demo.py
 Example demonstrating Flask integration with AI SOS.
 """
 
+# pyrefly: ignore [missing-import]
 from flask import Flask, request
 import aisos
 
