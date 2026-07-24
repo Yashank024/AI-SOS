@@ -1,12 +1,14 @@
 # 🛡️ AI SOS — Autonomous Adaptive Security Layer for Python Applications
 
+[![PyPI Version](https://img.shields.io/pypi/v/aisos.svg)](https://pypi.org/project/aisos/)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/aisos.svg)](https://pypi.org/project/aisos/)
 [![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Production Ready](https://img.shields.io/badge/status-production--grade-brightgreen.svg)]()
+[![Status](https://img.shields.io/badge/status-developer--preview--v0.1.0-brightgreen.svg)]()
 [![Architecture](https://img.shields.io/badge/architecture-zero--code--rewrite-orange.svg)]()
 [![Offline First](https://img.shields.io/badge/mode-100%25--offline%20ready-blueviolet.svg)]()
 
-> **AI SOS** is a production-grade, lightweight, open-source Security Framework that functions as an **Autonomous Adaptive Security Layer** for modern Web Applications, APIs, microservices, and AI Agent systems. 
+> **AI SOS** is a lightweight, open-source, production-oriented Security Framework (Developer Preview v0.1.0) that functions as an **Autonomous Adaptive Security Layer** for modern Web Applications, APIs, microservices, and AI Agent systems. 
 > 
 > Unlike traditional WAFs or security SDK wrappers, **AI SOS never requires rewriting application logic**. Instead, it sits beside your existing stack, silently observing, normalizing, scoring risk, evaluating policy, preventing attacks, and adapting its defense posture in real time.
 
